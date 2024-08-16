@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:todo/components/todo_list.dart';
 
 class HomePage extends StatelessWidget {
-  final items = const <TodoItem>[
-    ("Lorem ipsum", "some detailed information"),
+  final items = <TodoItem>[
+    TodoItem(
+      title: "Lorem ipsum",
+      description: "some detailed information",
+      done: false,
+    ),
   ];
 
-  const HomePage({super.key});
+  HomePage({super.key});
 
   void createTask() {}
 
@@ -18,11 +22,9 @@ class HomePage extends StatelessWidget {
         title: const Text("To Do"),
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: createTask,
-        icon: const Icon(Icons.add),
-        label: const Text("Add task"),
-        shape: const StadiumBorder(),
+        child: const Icon(Icons.add),
       ),
       body: TodoList(items: items),
     );

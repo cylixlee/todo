@@ -1,89 +1,83 @@
 import 'package:flutter/material.dart';
 
-class TodoTile extends StatefulWidget {
-  static const TextStyle titleStyle = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 16.0,
-  );
-  static const TextStyle titleDoneStyle = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 16.0,
-    decoration: TextDecoration.lineThrough,
-  );
-  static const TextStyle descriptionStyle = TextStyle(
-    fontWeight: FontWeight.normal,
-    fontSize: 12.0,
-  );
-  static const TextStyle descriptionDoneStyle = TextStyle(
-    fontWeight: FontWeight.normal,
-    fontSize: 12.0,
-    decoration: TextDecoration.lineThrough,
-  );
-
-  final double borderRadius;
-  final double padding;
-  final double checkboxSpacing;
-
+class TodoTile extends StatelessWidget {
   final String title;
   final String description;
+  final bool done;
+
+  final double padding;
+  final double checkboxSpacing;
+  final double borderRadius;
+  final double titleFontSize;
+  final double descriptionFontSize;
+  final ValueChanged<bool?>? onCheckboxChanged;
+  final GestureTapCallback? onTap;
 
   const TodoTile({
     super.key,
     required this.title,
     required this.description,
-    this.borderRadius = 8.0,
-    this.padding = 12.0,
-    this.checkboxSpacing = 10.0,
-  });
-
-  @override
-  State<TodoTile> createState() => _TodoTileState();
-}
-
-class _TodoTileState extends State<TodoTile> {
-  bool done = false;
-
-  void onCheckboxChanged(bool? value) {
-    setState(() {
-      done = !done;
-    });
-  }
+    required this.done,
+    this.onCheckboxChanged,
+    this.onTap,
+    double? padding,
+    double? checkboxSpacing,
+    double? borderRadius,
+    double? titleFontSize,
+    double? descriptionFontSize,
+  })  : padding = padding ?? 12.0,
+        checkboxSpacing = checkboxSpacing ?? 10.0,
+        borderRadius = borderRadius ?? 12.0,
+        titleFontSize = titleFontSize ?? 16.0,
+        descriptionFontSize = descriptionFontSize ?? 12.0;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(widget.borderRadius),
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(borderRadius),
       ),
-      padding: EdgeInsets.all(widget.padding),
-      child: Row(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(right: widget.checkboxSpacing),
-            child: Checkbox(
-              value: done,
-              onChanged: onCheckboxChanged,
-            ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(borderRadius),
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.all(padding),
+          child: Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(right: checkboxSpacing),
+                child: Checkbox(
+                  value: done,
+                  onChanged: onCheckboxChanged,
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: titleFontSize,
+                        decoration: done ? TextDecoration.lineThrough : null,
+                      ),
+                    ),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: descriptionFontSize,
+                        decoration: done ? TextDecoration.lineThrough : null,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
           ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.title,
-                  style: done ? TodoTile.titleDoneStyle : TodoTile.titleStyle,
-                ),
-                Text(
-                  widget.description,
-                  style: done
-                      ? TodoTile.descriptionDoneStyle
-                      : TodoTile.descriptionStyle,
-                ),
-              ],
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
