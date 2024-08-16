@@ -39,7 +39,7 @@ class TodoList extends StatefulWidget {
     this.tileTitleFontSize,
     this.tileDescriptionFontSize,
   })  : padding = padding ?? 20.0,
-        spacing = spacing ?? 20.0;
+        spacing = spacing ?? 10.0;
 
   @override
   State<TodoList> createState() => _TodoListState();

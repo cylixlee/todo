@@ -15,7 +15,7 @@ class TodoApp extends StatelessWidget {
       theme: ThemeData(
         colorSchemeSeed: Colors.deepPurple,
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }

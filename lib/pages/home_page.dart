@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:todo/components/todo_list.dart';
+import 'package:todo/dialog/message_box.dart';
+import 'package:todo/dialog/task_creator.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final items = <TodoItem>[
     TodoItem(
       title: "Lorem ipsum",
@@ -10,9 +19,42 @@ class HomePage extends StatelessWidget {
     ),
   ];
 
-  HomePage({super.key});
-
-  void createTask() {}
+  void createTask() {
+    final title = TextEditingController();
+    final description = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return TaskCreatorDialog(
+          title: "Create task",
+          onConfirm: () {
+            if (title.text.isEmpty || description.text.isEmpty) {
+              Navigator.pop(context);
+              showDialog(
+                context: context,
+                builder: (context) => const MessageBox(
+                  title: "Oops...empty task?",
+                  description: "Please type in task title & description.",
+                ),
+              );
+              return;
+            }
+            setState(() {
+              items.add(TodoItem(
+                title: title.text,
+                description: description.text,
+                done: false,
+              ));
+            });
+            Navigator.pop(context);
+          },
+          onCancel: () => Navigator.pop(context),
+          titleController: title,
+          descriptionController: description,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
