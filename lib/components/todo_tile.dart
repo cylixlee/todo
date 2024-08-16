@@ -5,16 +5,27 @@ class TodoTile extends StatefulWidget {
     fontWeight: FontWeight.bold,
     fontSize: 16.0,
   );
+  static const TextStyle titleDoneStyle = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 16.0,
+    decoration: TextDecoration.lineThrough,
+  );
   static const TextStyle descriptionStyle = TextStyle(
     fontWeight: FontWeight.normal,
     fontSize: 12.0,
   );
-
-  final String title;
-  final String description;
+  static const TextStyle descriptionDoneStyle = TextStyle(
+    fontWeight: FontWeight.normal,
+    fontSize: 12.0,
+    decoration: TextDecoration.lineThrough,
+  );
 
   final double borderRadius;
   final double padding;
+  final double checkboxSpacing;
+
+  final String title;
+  final String description;
 
   const TodoTile({
     super.key,
@@ -22,6 +33,7 @@ class TodoTile extends StatefulWidget {
     required this.description,
     this.borderRadius = 8.0,
     this.padding = 12.0,
+    this.checkboxSpacing = 10.0,
   });
 
   @override
@@ -29,11 +41,11 @@ class TodoTile extends StatefulWidget {
 }
 
 class _TodoTileState extends State<TodoTile> {
-  bool completed = false;
+  bool done = false;
 
   void onCheckboxChanged(bool? value) {
     setState(() {
-      completed = !completed;
+      done = !done;
     });
   }
 
@@ -48,18 +60,28 @@ class _TodoTileState extends State<TodoTile> {
       child: Row(
         children: [
           Padding(
-            padding: EdgeInsets.only(right: widget.padding / 2),
+            padding: EdgeInsets.only(right: widget.checkboxSpacing),
             child: Checkbox(
-              value: completed,
+              value: done,
               onChanged: onCheckboxChanged,
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(widget.title, style: TodoTile.titleStyle),
-              Text(widget.description, style: TodoTile.descriptionStyle),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.title,
+                  style: done ? TodoTile.titleDoneStyle : TodoTile.titleStyle,
+                ),
+                Text(
+                  widget.description,
+                  style: done
+                      ? TodoTile.descriptionDoneStyle
+                      : TodoTile.descriptionStyle,
+                ),
+              ],
+            ),
           )
         ],
       ),
