@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class TodoTile extends StatelessWidget {
   final String title;
@@ -12,6 +13,7 @@ class TodoTile extends StatelessWidget {
   final double descriptionFontSize;
   final ValueChanged<bool?>? onCheckboxChanged;
   final GestureTapCallback? onTap;
+  final SlidableActionCallback? onDeleted;
 
   const TodoTile({
     super.key,
@@ -20,6 +22,7 @@ class TodoTile extends StatelessWidget {
     required this.done,
     this.onCheckboxChanged,
     this.onTap,
+    this.onDeleted,
     double? padding,
     double? checkboxSpacing,
     double? borderRadius,
@@ -33,49 +36,64 @@ class TodoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius),
+    return Slidable(
+      endActionPane: ActionPane(
+        motion: const StretchMotion(),
+        children: [
+          SlidableAction(
+            onPressed: onDeleted,
+            icon: Icons.delete,
+            backgroundColor: Colors.red.shade400,
+            borderRadius: BorderRadius.circular(borderRadius),
+            autoClose: true,
+            label: "Delete",
+          ),
+        ],
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(borderRadius),
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.all(padding),
-          child: Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: checkboxSpacing),
-                child: Checkbox(
-                  value: done,
-                  onChanged: onCheckboxChanged,
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(borderRadius),
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(padding),
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(right: checkboxSpacing),
+                  child: Checkbox(
+                    value: done,
+                    onChanged: onCheckboxChanged,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: titleFontSize,
-                        decoration: done ? TextDecoration.lineThrough : null,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: titleFontSize,
+                          decoration: done ? TextDecoration.lineThrough : null,
+                        ),
                       ),
-                    ),
-                    Text(
-                      description,
-                      style: TextStyle(
-                        fontWeight: FontWeight.normal,
-                        fontSize: descriptionFontSize,
-                        decoration: done ? TextDecoration.lineThrough : null,
+                      Text(
+                        description,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: descriptionFontSize,
+                          decoration: done ? TextDecoration.lineThrough : null,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              )
-            ],
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

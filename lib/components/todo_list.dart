@@ -14,12 +14,14 @@ class TodoItem {
 }
 
 typedef TileTapCallback = void Function(int);
+typedef TileDeleteCallback = void Function(int);
 
 class TodoList extends StatefulWidget {
   final List<TodoItem> items;
   final double padding;
   final double spacing;
   final TileTapCallback? onTileTapped;
+  final TileDeleteCallback? onTileDeleted;
 
   final double? tilePadding;
   final double? tileCheckboxSpacing;
@@ -31,6 +33,7 @@ class TodoList extends StatefulWidget {
     super.key,
     required this.items,
     this.onTileTapped,
+    this.onTileDeleted,
     double? padding,
     double? spacing,
     this.tilePadding,
@@ -48,6 +51,12 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   @override
   Widget build(BuildContext context) {
+    if (widget.items.isEmpty) {
+      return const Center(
+        child: Text("Nothing to do."),
+      );
+    }
+
     return ListView.builder(
       padding: EdgeInsets.all(widget.padding),
       itemCount: widget.items.length,
@@ -67,6 +76,11 @@ class _TodoListState extends State<TodoList> {
           onTap: () {
             if (widget.onTileTapped != null) {
               widget.onTileTapped!(index);
+            }
+          },
+          onDeleted: (_) {
+            if (widget.onTileDeleted != null) {
+              widget.onTileDeleted!(index);
             }
           },
         );

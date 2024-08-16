@@ -56,6 +56,46 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void deleteTask(int index) {
+    setState(() {
+      items.removeAt(index);
+    });
+  }
+
+  void editTask(int index) {
+    final title = TextEditingController(text: items[index].title);
+    final description = TextEditingController(text: items[index].description);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return TaskCreatorDialog(
+          title: "Edit task",
+          onConfirm: () {
+            if (title.text.isEmpty || description.text.isEmpty) {
+              Navigator.pop(context);
+              showDialog(
+                context: context,
+                builder: (context) => const MessageBox(
+                  title: "Oops...empty task?",
+                  description: "Please type in task title & description.",
+                ),
+              );
+              return;
+            }
+            setState(() {
+              items[index].title = title.text;
+              items[index].description = description.text;
+            });
+            Navigator.pop(context);
+          },
+          onCancel: () => Navigator.pop(context),
+          titleController: title,
+          descriptionController: description,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +108,11 @@ class _HomePageState extends State<HomePage> {
         onPressed: createTask,
         child: const Icon(Icons.add),
       ),
-      body: TodoList(items: items),
+      body: TodoList(
+        items: items,
+        onTileDeleted: deleteTask,
+        onTileTapped: editTask,
+      ),
     );
   }
 }
