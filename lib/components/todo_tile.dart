@@ -11,6 +11,8 @@ class TodoTile extends StatelessWidget {
   final double borderRadius;
   final double titleFontSize;
   final double descriptionFontSize;
+  final double actionPaneExtent;
+  final double actionPaneSpacing;
   final ValueChanged<bool?>? onCheckboxChanged;
   final GestureTapCallback? onTap;
   final SlidableActionCallback? onDeleted;
@@ -28,17 +30,22 @@ class TodoTile extends StatelessWidget {
     double? borderRadius,
     double? titleFontSize,
     double? descriptionFontSize,
+    double? actionPaneExtent,
+    double? actionPaneSpacing,
   })  : padding = padding ?? 12.0,
         checkboxSpacing = checkboxSpacing ?? 10.0,
         borderRadius = borderRadius ?? 12.0,
         titleFontSize = titleFontSize ?? 16.0,
-        descriptionFontSize = descriptionFontSize ?? 12.0;
+        descriptionFontSize = descriptionFontSize ?? 12.0,
+        actionPaneExtent = actionPaneExtent ?? 0.25,
+        actionPaneSpacing = actionPaneSpacing ?? 4;
 
   @override
   Widget build(BuildContext context) {
     return Slidable(
       endActionPane: ActionPane(
-        motion: const StretchMotion(),
+        extentRatio: actionPaneExtent,
+        motion: const DrawerMotion(),
         children: [
           SlidableAction(
             onPressed: onDeleted,
@@ -51,6 +58,7 @@ class TodoTile extends StatelessWidget {
         ],
       ),
       child: Card(
+        margin: EdgeInsets.symmetric(horizontal: actionPaneSpacing),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
