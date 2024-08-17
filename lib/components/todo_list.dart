@@ -1,18 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:todo/components/todo_tile.dart';
+import 'package:todo/data/todo_item.dart';
 
-class TodoItem {
-  String title;
-  String description;
-  bool done;
-
-  TodoItem({
-    required this.title,
-    required this.description,
-    required this.done,
-  });
-}
-
+typedef TileCheckboxChangedCallback = void Function(int, bool?);
 typedef TileTapCallback = void Function(int);
 typedef TileDeleteCallback = void Function(int);
 
@@ -20,6 +10,7 @@ class TodoList extends StatefulWidget {
   final List<TodoItem> items;
   final double padding;
   final double spacing;
+  final TileCheckboxChangedCallback? onCheckboxChanged;
   final TileTapCallback? onTileTapped;
   final TileDeleteCallback? onTileDeleted;
 
@@ -32,6 +23,7 @@ class TodoList extends StatefulWidget {
   const TodoList({
     super.key,
     required this.items,
+    this.onCheckboxChanged,
     this.onTileTapped,
     this.onTileDeleted,
     double? padding,
@@ -70,9 +62,11 @@ class _TodoListState extends State<TodoList> {
           borderRadius: widget.tileBorderRadius,
           titleFontSize: widget.tileTitleFontSize,
           descriptionFontSize: widget.tileDescriptionFontSize,
-          onCheckboxChanged: (value) => setState(() {
-            widget.items[index].done = value!;
-          }),
+          onCheckboxChanged: (value) {
+            if (widget.onCheckboxChanged != null) {
+              widget.onCheckboxChanged!(index, value);
+            }
+          },
           onTap: () {
             if (widget.onTileTapped != null) {
               widget.onTileTapped!(index);

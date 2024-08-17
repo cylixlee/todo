@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:todo/components/dialog/message_box.dart';
+import 'package:todo/components/dialog/task_dialog.dart';
 import 'package:todo/components/todo_list.dart';
-import 'package:todo/dialog/message_box.dart';
-import 'package:todo/dialog/task_creator.dart';
+import 'package:todo/data/todo_database.dart';
+import 'package:todo/data/todo_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,13 +13,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final items = <TodoItem>[
-    TodoItem(
-      title: "Lorem ipsum",
-      description: "some detailed information",
-      done: false,
-    ),
-  ];
+  final TodoDatabase _database = TodoDatabase();
+
+  @override
+  void initState() {
+    super.initState();
+    _database.load();
+  }
 
   void createTask() {
     final title = TextEditingController();
@@ -40,11 +42,13 @@ class _HomePageState extends State<HomePage> {
               return;
             }
             setState(() {
-              items.add(TodoItem(
-                title: title.text,
-                description: description.text,
-                done: false,
-              ));
+              _database.write((items) {
+                items.add(TodoItem(
+                  title: title.text,
+                  description: description.text,
+                  done: false,
+                ));
+              });
             });
             Navigator.pop(context);
           },
@@ -58,13 +62,21 @@ class _HomePageState extends State<HomePage> {
 
   void deleteTask(int index) {
     setState(() {
-      items.removeAt(index);
+      _database.write((items) {
+        items.removeAt(index);
+      });
     });
   }
 
   void editTask(int index) {
-    final title = TextEditingController(text: items[index].title);
-    final description = TextEditingController(text: items[index].description);
+    final title = TextEditingController(
+      text: _database.read((items) => items[index].title),
+    );
+    final description = TextEditingController(
+      text: _database.read(
+        (items) => items[index].description,
+      ),
+    );
     showDialog(
       context: context,
       builder: (context) {
@@ -83,8 +95,11 @@ class _HomePageState extends State<HomePage> {
               return;
             }
             setState(() {
-              items[index].title = title.text;
-              items[index].description = description.text;
+              _database.write((items) {
+                items[index]
+                  ..title = title.text
+                  ..description = description.text;
+              });
             });
             Navigator.pop(context);
           },
@@ -109,7 +124,14 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.add),
       ),
       body: TodoList(
-        items: items,
+        items: _database.read((items) => items),
+        onCheckboxChanged: (index, value) {
+          setState(() {
+            _database.write((items) {
+              items[index].done = value!;
+            });
+          });
+        },
         onTileDeleted: deleteTask,
         onTileTapped: editTask,
       ),

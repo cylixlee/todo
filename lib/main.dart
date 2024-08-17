@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:todo/data/todo_item.dart';
 import 'package:todo/pages/home_page.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(TodoItemAdapter());
+  await Hive.openBox('database');
+
   runApp(const TodoApp());
 }
 
