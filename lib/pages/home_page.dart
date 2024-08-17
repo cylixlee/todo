@@ -12,6 +12,45 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+typedef TaskDialogCallback = void Function(
+  TextEditingController,
+  TextEditingController,
+);
+
+void _showTaskDialog(
+  BuildContext context,
+  String title,
+  TaskDialogCallback action,
+) {
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
+  showDialog(
+    context: context,
+    builder: (context) => TaskDialog(
+      title: title,
+      onConfirm: () {
+        if (titleController.text.isEmpty ||
+            descriptionController.text.isEmpty) {
+          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (context) => const MessageBox(
+              title: "Oops...empty task?",
+              description: "Please type in task title & description.",
+            ),
+          );
+          return;
+        }
+        action(titleController, descriptionController);
+        Navigator.pop(context);
+      },
+      onCancel: () => Navigator.pop(context),
+      titleController: titleController,
+      descriptionController: descriptionController,
+    ),
+  );
+}
+
 class _HomePageState extends State<HomePage> {
   final TodoDatabase _database = TodoDatabase();
 
@@ -22,42 +61,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   void createTask() {
-    final title = TextEditingController();
-    final description = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return TaskCreatorDialog(
-          title: "Create task",
-          onConfirm: () {
-            if (title.text.isEmpty || description.text.isEmpty) {
-              Navigator.pop(context);
-              showDialog(
-                context: context,
-                builder: (context) => const MessageBox(
-                  title: "Oops...empty task?",
-                  description: "Please type in task title & description.",
-                ),
-              );
-              return;
-            }
-            setState(() {
-              _database.write((items) {
-                items.add(TodoItem(
-                  title: title.text,
-                  description: description.text,
-                  done: false,
-                ));
-              });
-            });
-            Navigator.pop(context);
-          },
-          onCancel: () => Navigator.pop(context),
-          titleController: title,
-          descriptionController: description,
-        );
-      },
-    );
+    _showTaskDialog(context, "Create task", (title, description) {
+      setState(() {
+        _database.write((items) {
+          items.add(TodoItem(
+            title: title.text,
+            description: description.text,
+            done: false,
+          ));
+        });
+      });
+    });
   }
 
   void deleteTask(int index) {
@@ -69,46 +83,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void editTask(int index) {
-    final title = TextEditingController(
-      text: _database.read((items) => items[index].title),
-    );
-    final description = TextEditingController(
-      text: _database.read(
-        (items) => items[index].description,
-      ),
-    );
-    showDialog(
-      context: context,
-      builder: (context) {
-        return TaskCreatorDialog(
-          title: "Edit task",
-          onConfirm: () {
-            if (title.text.isEmpty || description.text.isEmpty) {
-              Navigator.pop(context);
-              showDialog(
-                context: context,
-                builder: (context) => const MessageBox(
-                  title: "Oops...empty task?",
-                  description: "Please type in task title & description.",
-                ),
-              );
-              return;
-            }
-            setState(() {
-              _database.write((items) {
-                items[index]
-                  ..title = title.text
-                  ..description = description.text;
-              });
-            });
-            Navigator.pop(context);
-          },
-          onCancel: () => Navigator.pop(context),
-          titleController: title,
-          descriptionController: description,
-        );
-      },
-    );
+    _showTaskDialog(context, "Edit task", (title, description) {
+      setState(() {
+        _database.write((items) {
+          items[index]
+            ..title = title.text
+            ..description = description.text;
+        });
+      });
+    });
   }
 
   @override
